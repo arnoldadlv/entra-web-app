@@ -1,3 +1,5 @@
+//searchTenant
+
 import { getAccessToken } from "./get-access-token";
 
 import { GraphApiTenantResponse } from "@/types";
@@ -11,6 +13,11 @@ interface SearchResult {
   cloud?: string;
   tenantId?: string;
   status: number;
+  authorization_endpoint?: string;
+  token_endpoint?: string;
+  userinfo_endpoint?: string;
+  tenant_region_scope?: string;
+  issuer?: string;
 }
 
 export async function searchTenant(
@@ -39,6 +46,11 @@ export async function searchTenant(
       return {
         tenantId: tenantId,
         defaultDomainName: searchType === "tenantId" ? searchValue : undefined,
+        authorization_endpoint: oidcData.authorization_endpoint,
+        token_endpoint: oidcData.token_endpoint,
+        userinfo_endpoint: oidcData.userinfo_endpoint,
+        tenant_region_scope: oidcData.tenant_region_scope,
+        issuer: oidcData.issuer,
         cloud: cloud,
         status: 200,
       };
@@ -69,11 +81,21 @@ export async function searchTenant(
       tenantId: tenantId,
       cloud: cloud,
       status: 200,
+      authorization_endpoint: oidcData.authorization_endpoint,
+      token_endpoint: oidcData.token_endpoint,
+      userinfo_endpoint: oidcData.userinfo_endpoint,
+      tenant_region_scope: oidcData.tenant_region_scope,
+      issuer: oidcData.issuer,
     };
   } catch (error) {
     return {
       error: error instanceof Error ? error.message : "Tenant lookup failed",
       status: 500,
+      authorization_endpoint: undefined,
+      token_endpoint: undefined,
+      userinfo_endpoint: undefined,
+      tenant_region_scope: undefined,
+      issuer: undefined,
     };
   }
 }

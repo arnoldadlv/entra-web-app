@@ -7,7 +7,12 @@ import { Button } from "@heroui/button";
 import { alert } from "@heroui/theme";
 import { Spinner } from "@heroui/spinner";
 
-import { TenantResponse } from "@/types";
+import {
+  TenantResponse,
+  EmailResponse,
+  DomainResponse,
+  TenantIDResponse,
+} from "@/types";
 
 export default function TenantLookupForm() {
   const [searchValue, setSearchValue] = useState<string>("");
@@ -77,6 +82,151 @@ export default function TenantLookupForm() {
     }
   };
 
+  // Render different info cards based on response type
+  const renderTenantInfoCard = () => {
+    if (!tenantInfo) return null;
+
+    // Common card container
+    return (
+      <div className="p-4 rounded-lg border">
+        <h3 className="font-bold">
+          {tenantInfo.responseType === "email"
+            ? "Email Information"
+            : tenantInfo.responseType === "domain"
+              ? "Domain Information"
+              : "Tenant Information"}
+        </h3>
+        <div className="mt-2 space-y-2">
+          {/* Render different fields based on response type */}
+          {tenantInfo.responseType === "email" &&
+            renderEmailInfo(tenantInfo as EmailResponse)}
+          {tenantInfo.responseType === "domain" &&
+            renderDomainInfo(tenantInfo as DomainResponse)}
+          {tenantInfo.responseType === "tenantId" &&
+            renderTenantIdInfo(tenantInfo as TenantIDResponse)}
+        </div>
+      </div>
+    );
+  };
+
+  // Render email-specific information
+  const renderEmailInfo = (info: EmailResponse) => (
+    <>
+      <p>
+        <span className="font-medium">Login:</span> {info.login}
+      </p>
+      <p>
+        <span className="font-medium">Domain:</span> {info.domainName}
+      </p>
+      <p>
+        <span className="font-medium">Login State:</span>{" "}
+        {info.state === 1
+          ? "Active"
+          : info.state === 4
+            ? "Federated"
+            : info.state}
+      </p>
+      <p>
+        <span className="font-medium">Account Type:</span> {info.namespaceType}
+      </p>
+      {info.federationBrandName && (
+        <p>
+          <span className="font-medium">Federation Brand:</span>{" "}
+          {info.federationBrandName}
+        </p>
+      )}
+      <p>
+        <span className="font-medium">Cloud:</span> {info.cloudInstanceName}
+      </p>
+      {info.federationProtocol && (
+        <p>
+          <span className="font-medium">Federation Protocol:</span>{" "}
+          {info.federationProtocol}
+        </p>
+      )}
+    </>
+  );
+
+  // Render domain-specific information
+  const renderDomainInfo = (info: DomainResponse) => (
+    <>
+      {info.displayName && (
+        <p>
+          <span className="font-medium">Organization:</span> {info.displayName}
+        </p>
+      )}
+      <p>
+        <span className="font-medium">Domain:</span> {info.defaultDomainName}
+      </p>
+      {info.tenantId && (
+        <p>
+          <span className="font-medium">Tenant ID:</span> {info.tenantId}
+        </p>
+      )}
+      <p>
+        <span className="font-medium">Cloud:</span> {info.cloud}
+      </p>
+    </>
+  );
+
+  // Render tenant ID-specific information
+  const renderTenantIdInfo = (info: TenantIDResponse) => (
+    <>
+      <p>
+        <span className="font-medium">Tenant ID:</span> {info.tenantId}
+      </p>
+      {info.displayName && (
+        <p>
+          <span className="font-medium">Organization:</span> {info.displayName}
+        </p>
+      )}
+      <p>
+        <span className="font-medium">Cloud:</span> {info.cloud}
+      </p>
+      {info.tenantRegion && (
+        <p>
+          <span className="font-medium">Region:</span> {info.tenantRegion}
+        </p>
+      )}
+      {info.issuer && (
+        <p>
+          <span className="font-medium">Issuer:</span> {info.issuer}
+        </p>
+      )}
+      {info.endpoints && (
+        <div className="mt-4">
+          <p className="font-medium">Authentication Endpoints:</p>
+          <div className="pl-4 mt-1 text-sm">
+            {info.endpoints.authorization && (
+              <p>
+                <span className="font-medium">Authorization:</span>{" "}
+                <span className="text-blue-600 break-all">
+                  {info.endpoints.authorization}
+                </span>
+              </p>
+            )}
+            {info.endpoints.token && (
+              <p>
+                <span className="font-medium">Token:</span>{" "}
+                <span className="text-blue-600 break-all">
+                  {info.endpoints.token}
+                </span>
+              </p>
+            )}
+            {info.endpoints.userInfo && (
+              <p>
+                <span className="font-medium">User Info:</span>{" "}
+                <span className="text-blue-600 break-all">
+                  {info.endpoints.userInfo}
+                </span>
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+
   return (
     <div className="w-full">
       <Form
@@ -124,28 +274,7 @@ export default function TenantLookupForm() {
         </div>
       )}
 
-      {tenantInfo && (
-        <div className="p-4 rounded-lg border">
-          <h3 className="font-bold">Tenant Information</h3>
-          <div className="mt-2 space-y-2">
-            <p>
-              <span className="font-medium">Name:</span>{" "}
-              {tenantInfo.displayName || "Not available"}
-            </p>
-            <p>
-              <span className="font-medium">Domain:</span>{" "}
-              {tenantInfo.defaultDomainName}
-            </p>
-            <p>
-              <span className="font-medium">ID:</span>{" "}
-              {tenantInfo.tenantId || "Not available"}
-            </p>
-            <p>
-              <span className="font-medium">Cloud:</span> {tenantInfo.cloud}
-            </p>
-          </div>
-        </div>
-      )}
+      {tenantInfo && renderTenantInfoCard()}
     </div>
   );
 }

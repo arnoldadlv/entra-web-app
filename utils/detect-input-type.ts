@@ -1,3 +1,5 @@
+//detects input
+
 export type InputType = "email" | "domain" | "tenantId" | "unknown";
 
 export function detectInputType(input: string): InputType {
