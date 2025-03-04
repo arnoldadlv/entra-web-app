@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+
+import { TenantResponse } from "../../../types/index";
+
 import { detectInputType } from "@/utils/detect-input-type";
 import { searchTenant } from "@/utils/tenant-search";
 import { getEntraLoginInfo } from "@/utils/get-login-info";
 import { EmailResponse, DomainResponse, TenantIDResponse } from "@/types/index";
-import { TenantResponse } from "../../../types/index";
 export async function GET(request: NextRequest) {
   const query = request.nextUrl.searchParams.get("query");
 
